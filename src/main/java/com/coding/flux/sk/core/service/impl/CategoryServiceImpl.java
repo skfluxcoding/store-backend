@@ -72,7 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponse findById(Long id) {
         var category = categoryJpaRepository.findByEnabledIsTrueAndIdCategory(id)
-                .orElseThrow(() -> new NotFoundException("Category not found"));
+                .orElseThrow(() -> new NotFoundException("Category " + id + " not found"));
         return new CategoryResponse(
                 category.getIdCategory(),
                 category.getName(),
