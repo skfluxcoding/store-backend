@@ -13,11 +13,11 @@ public interface CategoryService {
 
     public CategoryResponse create(CategoryRequest dto);
 
-    public CategoryResponse update(Long id, CategoryRequest dto);
+    public CategoryResponse update(String id, CategoryRequest dto);
 
-    public CategoryResponse findById(Long id);
+    public CategoryResponse findById(String id);
 
-    public void deleteById(Long id);
+    public void deleteById(String id);
 
     // reports
     public byte[] generateReportGetAllCategory() throws JRException;

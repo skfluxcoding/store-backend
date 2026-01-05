@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class RepCategoryGetAll {
 
-    private Long categoryId;
+    private String categoryId;
     private String name;
     private String description;
 

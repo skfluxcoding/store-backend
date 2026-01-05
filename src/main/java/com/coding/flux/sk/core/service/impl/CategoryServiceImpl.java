@@ -6,7 +6,7 @@ import com.coding.flux.sk.core.dto.CategoryRequest;
 import com.coding.flux.sk.core.dto.CategoryResponse;
 import com.coding.flux.sk.core.dto.RepCategoryGetAll;
 import com.coding.flux.sk.core.entity.Category;
-import com.coding.flux.sk.core.repository.CategoryJpaRepository;
+import com.coding.flux.sk.core.repository.CategoryMongoRepository;
 import com.coding.flux.sk.core.service.CategoryService;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -21,15 +21,15 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    private CategoryJpaRepository categoryJpaRepository;
+    private CategoryMongoRepository categoryMongoRepository;
 
-    public CategoryServiceImpl(CategoryJpaRepository categoryJpaRepository) {
-        this.categoryJpaRepository = categoryJpaRepository;
+    public CategoryServiceImpl(CategoryMongoRepository categoryMongoRepository) {
+        this.categoryMongoRepository = categoryMongoRepository;
     }
 
     @Override
     public List<CategoryResponse> findAll() {
-        return categoryJpaRepository.findAllByEnabledIsTrueOrderByIdCategoryDesc()
+        return categoryMongoRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
                 .stream()
                 .map(item -> new CategoryResponse(
                         item.getIdCategory(),
@@ -40,7 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponse create(CategoryRequest dto) {
-        if (categoryJpaRepository.existsByEnabledIsTrueAndNameIgnoreCase(dto.name())) {
+        if (categoryMongoRepository.existsByEnabledTrueAndNameIgnoreCase(dto.name())) {
             throw new AlreadyExistsException("Name " + dto.name() + " already exists");
         }
         var category = Category.builder()
@@ -49,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .enabled(true)
                 .createdAt(LocalDateTime.now())
                 .build();
-        var saved = categoryJpaRepository.save(category);
+        var saved = categoryMongoRepository.save(category);
         return new CategoryResponse(
                 saved.getIdCategory(),
                 saved.getName(),
@@ -58,16 +58,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse update(Long id, CategoryRequest dto) {
-        var category = categoryJpaRepository.findByEnabledIsTrueAndIdCategory(id)
+    public CategoryResponse update(String id, CategoryRequest dto) {
+        var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
-        if (categoryJpaRepository.existsByEnabledIsTrueAndNameIgnoreCaseAndIdCategoryNot(dto.name(), id)) {
+        if (categoryMongoRepository.existsByEnabledTrueAndNameIgnoreCaseAndIdCategoryNot(dto.name(), id)) {
             throw new AlreadyExistsException("Name " + dto.name() + " already exists");
         }
         category.setName(dto.name());
         category.setDescription(dto.description());
         category.setUpdatedAt(LocalDateTime.now());
-        var saved = categoryJpaRepository.save(category);
+        var saved = categoryMongoRepository.save(category);
         return new CategoryResponse(
                 saved.getIdCategory(),
                 saved.getName(),
@@ -76,8 +76,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse findById(Long id) {
-        var category = categoryJpaRepository.findByEnabledIsTrueAndIdCategory(id)
+    public CategoryResponse findById(String id) {
+        var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category " + id + " not found"));
         return new CategoryResponse(
                 category.getIdCategory(),
@@ -87,17 +87,17 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteById(Long id) {
-        var category = categoryJpaRepository.findByEnabledIsTrueAndIdCategory(id)
+    public void deleteById(String id) {
+        var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         category.setEnabled(false);
         category.setUpdatedAt(LocalDateTime.now());
-        categoryJpaRepository.delete(category);
+        categoryMongoRepository.delete(category);
     }
 
     @Override
     public byte[] generateReportGetAllCategory() throws JRException {
-        var data = categoryJpaRepository.findAllByEnabledIsTrueOrderByIdCategoryDesc()
+        var data = categoryMongoRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
                 .stream()
                 .map(item -> new RepCategoryGetAll(
                         item.getIdCategory(),

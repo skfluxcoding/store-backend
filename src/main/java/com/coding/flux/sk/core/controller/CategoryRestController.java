@@ -38,20 +38,20 @@ public class CategoryRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> findById(@PathVariable Long id) {
+    public ResponseEntity<CategoryResponse> findById(@PathVariable String id) {
         var category = categoryService.findById(id);
         return ResponseEntity.ok(category);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> update(@PathVariable Long id,
+    public ResponseEntity<CategoryResponse> update(@PathVariable String id,
                                                    @Valid @RequestBody CategoryRequest dto) {
         var category = categoryService.update(id, dto);
         return ResponseEntity.ok(category);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         categoryService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
