@@ -2,6 +2,8 @@ package com.coding.flux.sk.core.service;
 
 import com.coding.flux.sk.core.dto.CategoryRequest;
 import com.coding.flux.sk.core.dto.CategoryResponse;
+import com.coding.flux.sk.core.dto.RepCategoryGetAll;
+import net.sf.jasperreports.engine.JRException;
 
 import java.util.List;
 
@@ -16,5 +18,8 @@ public interface CategoryService {
     public CategoryResponse findById(Long id);
 
     public void deleteById(Long id);
+
+    // reports
+    public byte[] generateReportGetAllCategory() throws JRException;
 
 }

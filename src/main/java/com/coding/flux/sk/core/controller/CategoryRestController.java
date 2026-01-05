@@ -4,6 +4,9 @@ import com.coding.flux.sk.core.dto.CategoryRequest;
 import com.coding.flux.sk.core.dto.CategoryResponse;
 import com.coding.flux.sk.core.service.CategoryService;
 import jakarta.validation.Valid;
+import net.sf.jasperreports.engine.JRException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -51,6 +54,15 @@ public class CategoryRestController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         categoryService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/reports/generateReportGetAllCategory")
+    public ResponseEntity<byte[]> generateReportGetAllCategory() throws JRException {
+        byte[] pdf = categoryService.generateReportGetAllCategory();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=categories.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
 }
