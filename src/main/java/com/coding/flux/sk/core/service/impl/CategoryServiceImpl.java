@@ -4,7 +4,7 @@ import com.coding.flux.sk.common.exception.AlreadyExistsException;
 import com.coding.flux.sk.common.exception.NotFoundException;
 import com.coding.flux.sk.core.dto.*;
 import com.coding.flux.sk.core.mapper.CategoryMapper;
-import com.coding.flux.sk.core.repository.CategoryMongoRepository;
+import com.coding.flux.sk.core.repository.CategoryRepository;
 import com.coding.flux.sk.core.service.CategoryService;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -18,15 +18,15 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    private final CategoryMongoRepository categoryMongoRepository;
+    private final CategoryRepository categoryRepository;
 
-    public CategoryServiceImpl(CategoryMongoRepository categoryMongoRepository) {
-        this.categoryMongoRepository = categoryMongoRepository;
+    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
     public List<CategoryFindAll> findAll() {
-        return categoryMongoRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
+        return categoryRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
                 .stream()
                 .map(CategoryMapper::toFindAll)
                 .toList();
@@ -34,44 +34,44 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryCreated create(CategoryCreate dto) {
-        if (categoryMongoRepository.existsByEnabledTrueAndNameIgnoreCase(dto.name())) {
+        if (categoryRepository.existsByEnabledTrueAndNameIgnoreCase(dto.name())) {
             throw new AlreadyExistsException("Name " + dto.name() + " already exists");
         }
         var category = CategoryMapper.toCreate(dto);
-        var saved = categoryMongoRepository.save(category);
+        var saved = categoryRepository.save(category);
         return CategoryMapper.toCreated(saved);
     }
 
     @Override
     public CategoryUpdated update(String id, CategoryUpdate dto) {
-        var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
+        var category = categoryRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
-        if (categoryMongoRepository.existsByEnabledTrueAndNameIgnoreCaseAndIdCategoryNot(dto.name(), id)) {
+        if (categoryRepository.existsByEnabledTrueAndNameIgnoreCaseAndIdCategoryNot(dto.name(), id)) {
             throw new AlreadyExistsException("Name " + dto.name() + " already exists");
         }
         var update = CategoryMapper.toUpdate(category, dto);
-        var saved = categoryMongoRepository.save(update);
+        var saved = categoryRepository.save(update);
         return CategoryMapper.toUpdated(saved);
     }
 
     @Override
     public CategoryFindById findById(String id) {
-        var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
+        var category = categoryRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category " + id + " not found"));
         return CategoryMapper.toFindById(category);
     }
 
     @Override
     public void deleteById(String id) {
-        var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
+        var category = categoryRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         CategoryMapper.toDeleteById(category);
-        categoryMongoRepository.delete(category);
+        categoryRepository.delete(category);
     }
 
     @Override
     public byte[] generateReportGetAllCategory() throws JRException {
-        var data = categoryMongoRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
+        var data = categoryRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
                 .stream()
                 .map(CategoryMapper::toRepCategoryGetAll)
                 .toList();
