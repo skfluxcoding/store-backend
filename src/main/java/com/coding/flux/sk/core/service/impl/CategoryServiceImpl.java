@@ -12,7 +12,6 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,8 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteById(String id) {
         var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
-        category.setEnabled(false);
-        category.setUpdatedAt(LocalDateTime.now());
+        CategoryMapper.toDeleteById(category);
         categoryMongoRepository.delete(category);
     }
 
@@ -75,10 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
     public byte[] generateReportGetAllCategory() throws JRException {
         var data = categoryMongoRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
                 .stream()
-                .map(item -> new RepCategoryGetAll(
-                        item.getIdCategory(),
-                        item.getName(),
-                        item.getDescription()))
+                .map(CategoryMapper::toRepCategoryGetAll)
                 .toList();
         InputStream jasperStream = getClass().getResourceAsStream("/reports/GetAllCategory.jasper");
         JasperReport jasperReport = (JasperReport) JRLoader.loadObject(jasperStream);

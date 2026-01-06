@@ -57,4 +57,18 @@ public class CategoryMapper {
                 category.getDescription()
         );
     }
+
+    public static Category toDeleteById(Category category) {
+        category.setEnabled(false);
+        category.setUpdatedAt(LocalDateTime.now());
+        return category;
+    }
+
+    public static RepCategoryGetAll toRepCategoryGetAll(Category category) {
+        return new RepCategoryGetAll(
+                category.getIdCategory(),
+                category.getName(),
+                category.getDescription()
+        );
+    }
 }
