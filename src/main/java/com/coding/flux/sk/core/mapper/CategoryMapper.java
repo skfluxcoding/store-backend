@@ -71,4 +71,8 @@ public class CategoryMapper {
                 category.getDescription()
         );
     }
+
+    public static Category toEntity(CategoryCreate dto) {
+        return new Category();
+    }
 }
