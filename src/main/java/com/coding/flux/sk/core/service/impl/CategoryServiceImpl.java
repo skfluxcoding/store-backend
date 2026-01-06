@@ -2,10 +2,9 @@ package com.coding.flux.sk.core.service.impl;
 
 import com.coding.flux.sk.common.exception.AlreadyExistsException;
 import com.coding.flux.sk.common.exception.NotFoundException;
-import com.coding.flux.sk.core.dto.CategoryRequest;
-import com.coding.flux.sk.core.dto.CategoryResponse;
-import com.coding.flux.sk.core.dto.RepCategoryGetAll;
+import com.coding.flux.sk.core.dto.*;
 import com.coding.flux.sk.core.entity.Category;
+import com.coding.flux.sk.core.mapper.CategoryMapper;
 import com.coding.flux.sk.core.repository.CategoryMongoRepository;
 import com.coding.flux.sk.core.service.CategoryService;
 import net.sf.jasperreports.engine.*;
@@ -28,51 +27,33 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponse> findAll() {
+    public List<CategoryGetAll> findAll() {
         return categoryMongoRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
                 .stream()
-                .map(item -> new CategoryResponse(
-                        item.getIdCategory(),
-                        item.getName(),
-                        item.getDescription()))
+                .map(CategoryMapper::toGetAll)
                 .toList();
     }
 
     @Override
-    public CategoryResponse create(CategoryRequest dto) {
+    public CategoryCreated create(CategoryCreate dto) {
         if (categoryMongoRepository.existsByEnabledTrueAndNameIgnoreCase(dto.name())) {
             throw new AlreadyExistsException("Name " + dto.name() + " already exists");
         }
-        var category = Category.builder()
-                .name(dto.name())
-                .description(dto.description())
-                .enabled(true)
-                .createdAt(LocalDateTime.now())
-                .build();
+        var category = CategoryMapper.toCreate(dto);
         var saved = categoryMongoRepository.save(category);
-        return new CategoryResponse(
-                saved.getIdCategory(),
-                saved.getName(),
-                saved.getDescription()
-        );
+        return CategoryMapper.toCreated(saved);
     }
 
     @Override
-    public CategoryResponse update(String id, CategoryRequest dto) {
+    public CategoryUpdated update(String id, CategoryUpdate dto) {
         var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         if (categoryMongoRepository.existsByEnabledTrueAndNameIgnoreCaseAndIdCategoryNot(dto.name(), id)) {
             throw new AlreadyExistsException("Name " + dto.name() + " already exists");
         }
-        category.setName(dto.name());
-        category.setDescription(dto.description());
-        category.setUpdatedAt(LocalDateTime.now());
-        var saved = categoryMongoRepository.save(category);
-        return new CategoryResponse(
-                saved.getIdCategory(),
-                saved.getName(),
-                saved.getDescription()
-        );
+        var update = CategoryMapper.toUpdate(category, dto);
+        var saved = categoryMongoRepository.save(update);
+        return CategoryMapper.toUpdated(saved);
     }
 
     @Override

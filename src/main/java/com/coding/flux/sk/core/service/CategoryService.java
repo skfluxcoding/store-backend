@@ -1,18 +1,17 @@
 package com.coding.flux.sk.core.service;
 
-import com.coding.flux.sk.core.dto.CategoryRequest;
-import com.coding.flux.sk.core.dto.CategoryResponse;
+import com.coding.flux.sk.core.dto.*;
 import net.sf.jasperreports.engine.JRException;
 
 import java.util.List;
 
 public interface CategoryService {
 
-    public List<CategoryResponse> findAll();
+    public List<CategoryGetAll> findAll();
 
-    public CategoryResponse create(CategoryRequest dto);
+    public CategoryCreated create(CategoryCreate dto);
 
-    public CategoryResponse update(String id, CategoryRequest dto);
+    public CategoryUpdated update(String id, CategoryUpdate dto);
 
     public CategoryResponse findById(String id);
 

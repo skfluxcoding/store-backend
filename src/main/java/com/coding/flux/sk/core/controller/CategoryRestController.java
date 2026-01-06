@@ -1,7 +1,6 @@
 package com.coding.flux.sk.core.controller;
 
-import com.coding.flux.sk.core.dto.CategoryRequest;
-import com.coding.flux.sk.core.dto.CategoryResponse;
+import com.coding.flux.sk.core.dto.*;
 import com.coding.flux.sk.core.service.CategoryService;
 import jakarta.validation.Valid;
 import net.sf.jasperreports.engine.JRException;
@@ -24,13 +23,13 @@ public class CategoryRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> findAll() {
+    public ResponseEntity<List<CategoryGetAll>> findAll() {
         var categories = categoryService.findAll();
         return ResponseEntity.ok(categories);
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest dto) {
+    public ResponseEntity<CategoryCreated> create(@Valid @RequestBody CategoryCreate dto) {
         var category = categoryService.create(dto);
         var location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(category.categoryId()).toUri();
@@ -44,8 +43,8 @@ public class CategoryRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> update(@PathVariable String id,
-                                                   @Valid @RequestBody CategoryRequest dto) {
+    public ResponseEntity<CategoryUpdated> update(@PathVariable String id,
+                                                   @Valid @RequestBody CategoryUpdate dto) {
         var category = categoryService.update(id, dto);
         return ResponseEntity.ok(category);
     }
