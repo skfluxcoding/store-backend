@@ -7,17 +7,17 @@ import java.util.List;
 
 public interface CategoryService {
 
-    public List<CategoryGetAll> findAll();
+    List<CategoryGetAll> findAll();
 
-    public CategoryCreated create(CategoryCreate dto);
+    CategoryCreated create(CategoryCreate dto);
 
-    public CategoryUpdated update(String id, CategoryUpdate dto);
+    CategoryUpdated update(String id, CategoryUpdate dto);
 
-    public CategoryResponse findById(String id);
+    CategoryResponse findById(String id);
 
-    public void deleteById(String id);
+    void deleteById(String id);
 
     // reports
-    public byte[] generateReportGetAllCategory() throws JRException;
+    byte[] generateReportGetAllCategory() throws JRException;
 
 }

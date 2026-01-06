@@ -3,7 +3,6 @@ package com.coding.flux.sk.core.service.impl;
 import com.coding.flux.sk.common.exception.AlreadyExistsException;
 import com.coding.flux.sk.common.exception.NotFoundException;
 import com.coding.flux.sk.core.dto.*;
-import com.coding.flux.sk.core.entity.Category;
 import com.coding.flux.sk.core.mapper.CategoryMapper;
 import com.coding.flux.sk.core.repository.CategoryMongoRepository;
 import com.coding.flux.sk.core.service.CategoryService;
@@ -20,7 +19,7 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    private CategoryMongoRepository categoryMongoRepository;
+    private final CategoryMongoRepository categoryMongoRepository;
 
     public CategoryServiceImpl(CategoryMongoRepository categoryMongoRepository) {
         this.categoryMongoRepository = categoryMongoRepository;
@@ -89,7 +88,6 @@ public class CategoryServiceImpl implements CategoryService {
         JasperReport jasperReport = (JasperReport) JRLoader.loadObject(jasperStream);
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(data);
         HashMap<String, Object> parameters = new HashMap<>();
-        parameters.put("REPORT_TITLE", "Listado de Categorías");
         return JasperRunManager.runReportToPdf(jasperReport, parameters, dataSource);
     }
 }
