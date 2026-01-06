@@ -23,7 +23,7 @@ public class CategoryRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryGetAll>> findAll() {
+    public ResponseEntity<List<CategoryFindAll>> findAll() {
         var categories = categoryService.findAll();
         return ResponseEntity.ok(categories);
     }
@@ -37,7 +37,7 @@ public class CategoryRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> findById(@PathVariable String id) {
+    public ResponseEntity<CategoryFindById> findById(@PathVariable String id) {
         var category = categoryService.findById(id);
         return ResponseEntity.ok(category);
     }

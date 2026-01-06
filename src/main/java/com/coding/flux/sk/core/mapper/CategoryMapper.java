@@ -10,8 +10,8 @@ public class CategoryMapper {
     private CategoryMapper() {
     }
 
-    public static CategoryGetAll toGetAll(Category category) {
-        return new CategoryGetAll(
+    public static CategoryFindAll toFindAll(Category category) {
+        return new CategoryFindAll(
                 category.getIdCategory(),
                 category.getName(),
                 category.getDescription()
@@ -44,6 +44,14 @@ public class CategoryMapper {
 
     public static CategoryUpdated toUpdated(Category category) {
         return new CategoryUpdated(
+                category.getIdCategory(),
+                category.getName(),
+                category.getDescription()
+        );
+    }
+
+    public static CategoryFindById toFindById(Category category) {
+        return new CategoryFindById(
                 category.getIdCategory(),
                 category.getName(),
                 category.getDescription()

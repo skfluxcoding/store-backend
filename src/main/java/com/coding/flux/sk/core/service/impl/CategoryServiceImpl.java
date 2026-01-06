@@ -26,10 +26,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryGetAll> findAll() {
+    public List<CategoryFindAll> findAll() {
         return categoryMongoRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
                 .stream()
-                .map(CategoryMapper::toGetAll)
+                .map(CategoryMapper::toFindAll)
                 .toList();
     }
 
@@ -56,14 +56,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse findById(String id) {
+    public CategoryFindById findById(String id) {
         var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category " + id + " not found"));
-        return new CategoryResponse(
-                category.getIdCategory(),
-                category.getName(),
-                category.getDescription()
-        );
+        return CategoryMapper.toFindById(category);
     }
 
     @Override
