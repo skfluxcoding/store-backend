@@ -7,7 +7,9 @@ import java.util.Optional;
 
 public interface VehicleMongoRepository extends MongoRepository<Vehicle, String> {
 
-    Optional<Vehicle> findByTokenAndActiveTrue(String token);
+    // Buscar vehículo activo por ID
+    Optional<Vehicle> findByIdAndActiveTrue(String id);
 
-    boolean existsByToken(String token);
+    // Verificar si existe un código de vehículo
+    boolean existsByCode(String code);
 }

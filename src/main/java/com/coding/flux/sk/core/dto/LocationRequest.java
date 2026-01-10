@@ -1,20 +1,13 @@
 package com.coding.flux.sk.core.dto;
 
-import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
-import java.time.LocalDateTime;
+@Data
+public class LocationRequest {
 
-public record LocationRequest(
-
-        @NotNull
-        Double latitude,
-
-        @NotNull
-        Double longitude,
-
-        Double speed,
-        Double heading,
-
-        LocalDateTime timestamp
-) {
+        private String vehicleId;
+        private Double latitude;
+        private Double longitude;
+        private Double speed;
+        private Double heading;
 }

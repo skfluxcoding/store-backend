@@ -1,6 +1,6 @@
 package com.coding.flux.sk.common.config;
 
-import com.coding.flux.sk.core.entity.Location;
+import com.coding.flux.sk.core.dto.LocationWsResponse;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ public class LocationPublisher {
         this.messagingTemplate = messagingTemplate;
     }
 
-    public void publish(Location location) {
+    public void publish(LocationWsResponse location) {
         messagingTemplate.convertAndSend("/topic/locations", location);
     }
 }

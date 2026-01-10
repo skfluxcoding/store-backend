@@ -7,10 +7,8 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class LocationWsResponse {
+public class LocationResponse {
 
-    private String vehicleId;
-    private String tripId;
     private Double latitude;
     private Double longitude;
     private Double speed;

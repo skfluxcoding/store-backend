@@ -2,8 +2,9 @@ package com.coding.flux.sk.core.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
 
 @Document(collection = "vehicles")
 @Data
@@ -15,13 +16,15 @@ public class Vehicle {
     @Id
     private String id;
 
-    @Indexed(unique = true)
+    // Código único del vehículo (ej: VH-001)
     private String code;
 
+    // Nombre descriptivo
     private String name;
 
-    @Indexed(unique = true)
-    private String token;
+    // Indica si el vehículo está habilitado
+    private Boolean active;
 
-    private Boolean active = true;
+    // Fecha de creación
+    private LocalDateTime createdAt;
 }

@@ -1,66 +1,74 @@
 package com.coding.flux.sk.core.service;
 
-
 import com.coding.flux.sk.common.config.LocationPublisher;
-import com.coding.flux.sk.core.dto.LocationRequest;
 import com.coding.flux.sk.core.dto.LocationWsResponse;
 import com.coding.flux.sk.core.entity.Location;
+import com.coding.flux.sk.core.entity.Trip;
 import com.coding.flux.sk.core.repository.LocationMongoRepository;
-import com.coding.flux.sk.core.entity.Vehicle;
-import com.coding.flux.sk.core.repository.VehicleMongoRepository;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.coding.flux.sk.core.repository.TripMongoRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class LocationService {
 
-    private final VehicleMongoRepository vehicleRepository;
     private final LocationMongoRepository locationRepository;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final TripMongoRepository tripRepository;
     private final LocationPublisher locationPublisher;
 
     public LocationService(
-            VehicleMongoRepository vehicleRepository,
             LocationMongoRepository locationRepository,
-            SimpMessagingTemplate messagingTemplate,
+            TripMongoRepository tripRepository,
             LocationPublisher locationPublisher
     ) {
-        this.vehicleRepository = vehicleRepository;
         this.locationRepository = locationRepository;
-        this.messagingTemplate = messagingTemplate;
+        this.tripRepository = tripRepository;
         this.locationPublisher = locationPublisher;
     }
 
-    public void saveLocation(String token, LocationRequest dto) {
+    public void guardarUbicacion(
+            String vehicleId,
+            Double latitude,
+            Double longitude,
+            Double speed,
+            Double heading
+    ) {
 
-        Vehicle vehicle = vehicleRepository.findByTokenAndActiveTrue(token)
-                .orElseThrow(() -> new RuntimeException("Invalid vehicle token"));
+        Trip trip = tripRepository.findByVehicleIdAndActiveTrue(vehicleId)
+                .orElseThrow(() ->
+                        new RuntimeException("No hay viaje activo para el vehículo")
+                );
 
         Location location = Location.builder()
-                .vehicleId(vehicle.getId())
-                .latitude(dto.latitude())
-                .longitude(dto.longitude())
-                .speed(dto.speed())
-                .heading(dto.heading())
-                .timestamp(dto.timestamp() != null ? dto.timestamp() : LocalDateTime.now())
+                .vehicleId(vehicleId)
+                .tripId(trip.getId())
+                .latitude(latitude)
+                .longitude(longitude)
+                .speed(speed)
+                .heading(heading)
+                .timestamp(LocalDateTime.now())
                 .build();
 
         locationRepository.save(location);
-        locationPublisher.publish(location);
 
-        // Emitir SOLO última posición
+        // 🔴 Evento incremental (WebSocket)
         LocationWsResponse wsResponse = new LocationWsResponse(
-                vehicle.getId(),
-                vehicle.getCode(),
-                location.getLatitude(),
-                location.getLongitude(),
-                location.getSpeed(),
-                location.getHeading(),
+                trip.getId(),
+                vehicleId,
+                latitude,
+                longitude,
+                speed,
+                heading,
                 location.getTimestamp()
         );
 
-        messagingTemplate.convertAndSend("/topic/locations", wsResponse);
+        locationPublisher.publish(wsResponse);
+    }
+
+    // REST: reconstrucción de ruta
+    public List<Location> obtenerRutaPorViaje(String tripId) {
+        return locationRepository.findByTripIdOrderByTimestampAsc(tripId);
     }
 }

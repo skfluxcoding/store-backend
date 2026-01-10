@@ -1,9 +1,9 @@
 package com.coding.flux.sk.core.controller;
 
-import com.coding.flux.sk.core.dto.VehicleRequest;
+import com.coding.flux.sk.core.dto.VehicleCreateRequest;
 import com.coding.flux.sk.core.dto.VehicleResponse;
+import com.coding.flux.sk.core.entity.Vehicle;
 import com.coding.flux.sk.core.service.VehicleService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +18,22 @@ public class VehicleController {
     }
 
     @PostMapping
-    public ResponseEntity<VehicleResponse> create(
-            @Valid @RequestBody VehicleRequest request
+    public ResponseEntity<VehicleResponse> crearVehiculo(
+            @RequestBody VehicleCreateRequest request
     ) {
-        return ResponseEntity.ok(vehicleService.create(request));
+        var vehicle = vehicleService.crearVehiculo(
+                request.getCode(),
+                request.getName()
+        );
+
+        return ResponseEntity.ok(
+                new VehicleResponse(
+                        vehicle.getId(),
+                        vehicle.getCode(),
+                        vehicle.getName(),
+                        vehicle.getActive()
+                )
+        );
     }
+
 }

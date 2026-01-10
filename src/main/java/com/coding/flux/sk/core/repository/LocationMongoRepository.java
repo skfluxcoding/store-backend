@@ -3,17 +3,18 @@ package com.coding.flux.sk.core.repository;
 import com.coding.flux.sk.core.entity.Location;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface LocationMongoRepository extends MongoRepository<Location, String> {
 
-    Optional<Location> findTopByVehicleIdOrderByTimestampDesc(String vehicleId);
+    // Obtener todas las ubicaciones de un viaje (ruta completa)
+    List<Location> findByTripIdOrderByTimestampAsc(String tripId);
 
-    List<Location> findByVehicleIdAndTimestampBetween(
-            String vehicleId,
-            LocalDateTime from,
-            LocalDateTime to
-    );
+    // Última ubicación de un vehículo
+    List<Location> findTop1ByVehicleIdOrderByTimestampDesc(String vehicleId);
+
+
+    Optional<Location> findFirstByTripIdOrderByTimestampDesc(String tripId);
+
 }
