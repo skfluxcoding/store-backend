@@ -3,7 +3,7 @@ package com.coding.flux.sk.core.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record CategoryRequest(
+public record CategoryUpdate(
         @NotBlank(message = "Name is not blank")
         @Size(min = 3, max = 4, message = "Name length 3 and 4")
         String name,

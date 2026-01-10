@@ -2,11 +2,9 @@ package com.coding.flux.sk.core.service.impl;
 
 import com.coding.flux.sk.common.exception.AlreadyExistsException;
 import com.coding.flux.sk.common.exception.NotFoundException;
-import com.coding.flux.sk.core.dto.CategoryRequest;
-import com.coding.flux.sk.core.dto.CategoryResponse;
-import com.coding.flux.sk.core.dto.RepCategoryGetAll;
-import com.coding.flux.sk.core.entity.Category;
-import com.coding.flux.sk.core.repository.CategoryMongoRepository;
+import com.coding.flux.sk.core.dto.*;
+import com.coding.flux.sk.core.mapper.CategoryMapper;
+import com.coding.flux.sk.core.repository.CategoryRepository;
 import com.coding.flux.sk.core.service.CategoryService;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -14,101 +12,73 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    private CategoryMongoRepository categoryMongoRepository;
+    private final CategoryRepository categoryRepository;
 
-    public CategoryServiceImpl(CategoryMongoRepository categoryMongoRepository) {
-        this.categoryMongoRepository = categoryMongoRepository;
+    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
-    public List<CategoryResponse> findAll() {
-        return categoryMongoRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
+    public List<CategoryFindAll> findAll() {
+        return categoryRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
                 .stream()
-                .map(item -> new CategoryResponse(
-                        item.getIdCategory(),
-                        item.getName(),
-                        item.getDescription()))
+                .map(CategoryMapper::toFindAll)
                 .toList();
     }
 
     @Override
-    public CategoryResponse create(CategoryRequest dto) {
-        if (categoryMongoRepository.existsByEnabledTrueAndNameIgnoreCase(dto.name())) {
+    public CategoryCreated create(CategoryCreate dto) {
+        if (categoryRepository.existsByEnabledTrueAndNameIgnoreCase(dto.name())) {
             throw new AlreadyExistsException("Name " + dto.name() + " already exists");
         }
-        var category = Category.builder()
-                .name(dto.name())
-                .description(dto.description())
-                .enabled(true)
-                .createdAt(LocalDateTime.now())
-                .build();
-        var saved = categoryMongoRepository.save(category);
-        return new CategoryResponse(
-                saved.getIdCategory(),
-                saved.getName(),
-                saved.getDescription()
-        );
+        var category = CategoryMapper.toCreate(dto);
+        var saved = categoryRepository.save(category);
+        return CategoryMapper.toCreated(saved);
     }
 
     @Override
-    public CategoryResponse update(String id, CategoryRequest dto) {
-        var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
+    public CategoryUpdated update(String id, CategoryUpdate dto) {
+        var category = categoryRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
-        if (categoryMongoRepository.existsByEnabledTrueAndNameIgnoreCaseAndIdCategoryNot(dto.name(), id)) {
+        if (categoryRepository.existsByEnabledTrueAndNameIgnoreCaseAndIdCategoryNot(dto.name(), id)) {
             throw new AlreadyExistsException("Name " + dto.name() + " already exists");
         }
-        category.setName(dto.name());
-        category.setDescription(dto.description());
-        category.setUpdatedAt(LocalDateTime.now());
-        var saved = categoryMongoRepository.save(category);
-        return new CategoryResponse(
-                saved.getIdCategory(),
-                saved.getName(),
-                saved.getDescription()
-        );
+        var update = CategoryMapper.toUpdate(category, dto);
+        var saved = categoryRepository.save(update);
+        return CategoryMapper.toUpdated(saved);
     }
 
     @Override
-    public CategoryResponse findById(String id) {
-        var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
+    public CategoryFindById findById(String id) {
+        var category = categoryRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category " + id + " not found"));
-        return new CategoryResponse(
-                category.getIdCategory(),
-                category.getName(),
-                category.getDescription()
-        );
+        return CategoryMapper.toFindById(category);
     }
 
     @Override
     public void deleteById(String id) {
-        var category = categoryMongoRepository.findByEnabledTrueAndIdCategory(id)
+        var category = categoryRepository.findByEnabledTrueAndIdCategory(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
-        category.setEnabled(false);
-        category.setUpdatedAt(LocalDateTime.now());
-        categoryMongoRepository.delete(category);
+        CategoryMapper.toDeleteById(category);
+        categoryRepository.delete(category);
     }
 
     @Override
     public byte[] generateReportGetAllCategory() throws JRException {
-        var data = categoryMongoRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
+        var data = categoryRepository.findAllByEnabledTrueOrderByCreatedAtDesc()
                 .stream()
-                .map(item -> new RepCategoryGetAll(
-                        item.getIdCategory(),
-                        item.getName(),
-                        item.getDescription()))
+                .map(CategoryMapper::toRepCategoryGetAll)
                 .toList();
         InputStream jasperStream = getClass().getResourceAsStream("/reports/GetAllCategory.jasper");
         JasperReport jasperReport = (JasperReport) JRLoader.loadObject(jasperStream);
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(data);
         HashMap<String, Object> parameters = new HashMap<>();
-        parameters.put("REPORT_TITLE", "Listado de Categorías");
         return JasperRunManager.runReportToPdf(jasperReport, parameters, dataSource);
     }
 }

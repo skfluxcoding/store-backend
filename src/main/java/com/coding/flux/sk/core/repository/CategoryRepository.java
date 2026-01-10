@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface CategoryMongoRepository extends MongoRepository<Category, String> {
+public interface CategoryRepository extends MongoRepository<Category, String> {
 
     List<Category> findAllByEnabledTrueOrderByCreatedAtDesc();
 
