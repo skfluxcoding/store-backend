@@ -1,10 +1,12 @@
 package com.coding.flux.sk.core.service;
 
+import com.coding.flux.sk.core.dto.VehicleFindAll;
 import com.coding.flux.sk.core.entity.Vehicle;
 import com.coding.flux.sk.core.repository.VehicleMongoRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class VehicleService {
@@ -36,5 +38,11 @@ public class VehicleService {
     public Vehicle obtenerVehiculoActivo(String vehicleId) {
         return vehicleRepository.findByIdAndActiveTrue(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehículo no encontrado o inactivo"));
+    }
+
+    public List<VehicleFindAll> getAll() {
+        return vehicleRepository.findAllByActiveTrue()
+                .stream().map(item -> new VehicleFindAll(item.getId(), item.getCode(), item.getName()))
+                .toList();
     }
 }

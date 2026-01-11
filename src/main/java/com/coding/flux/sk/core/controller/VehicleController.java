@@ -1,11 +1,14 @@
 package com.coding.flux.sk.core.controller;
 
 import com.coding.flux.sk.core.dto.VehicleCreateRequest;
+import com.coding.flux.sk.core.dto.VehicleFindAll;
 import com.coding.flux.sk.core.dto.VehicleResponse;
 import com.coding.flux.sk.core.entity.Vehicle;
 import com.coding.flux.sk.core.service.VehicleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/vehicles")
@@ -15,6 +18,12 @@ public class VehicleController {
 
     public VehicleController(VehicleService vehicleService) {
         this.vehicleService = vehicleService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<VehicleFindAll>> getAll() {
+        var vehicles = vehicleService.getAll();
+        return ResponseEntity.ok(vehicles);
     }
 
     @PostMapping
