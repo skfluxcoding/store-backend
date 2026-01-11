@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
 
-
+/*
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CORS implements Filter {
@@ -39,11 +39,8 @@ public class CORS implements Filter {
             filterChain.doFilter(req, res);
         }
     }
-
-
-
     //implements WebMvcConfigurer {
-    /*@Override
+    @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:4200")
@@ -51,5 +48,32 @@ public class CORS implements Filter {
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);
-    }*/
+    }
 }
+*/
+
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class CORS implements Filter {
+
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletResponse response = (HttpServletResponse) res;
+        HttpServletRequest request = (HttpServletRequest) req;
+
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "*");
+        response.setHeader("Access-Control-Max-Age", "3600");
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+
+        chain.doFilter(req, res);
+    }
+}
+
